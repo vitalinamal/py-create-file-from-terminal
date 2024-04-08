@@ -19,11 +19,10 @@ def create_directory(path_parts: list[str]) -> str:
         os.makedirs(directory_path, exist_ok=True)
         return directory_path
     except PermissionError:
-        print(f"Permission denied: "
-              f"unable to create directory '{directory_path}'.")
+        print("Permission denied: unable to create directory.")
     except Exception as e:
         print(f"An error occurred creating "
-              f"directory '{directory_path}': {e}")
+              f"directory: {e}")
 
 
 def create_file(file_name: str, directory: str = None) -> None:
@@ -43,11 +42,10 @@ def create_file(file_name: str, directory: str = None) -> None:
 
         print(f"File {file_name} created")
     except PermissionError:
-        print(f"Permission denied: "
-              f"unable to create or write to file '{file_path}'.")
+        print("Permission denied: unable to create or write to file.")
     except Exception as e:
         print(f"An error occurred creating or "
-              f"writing to file '{file_path}': {e}")
+              f"writing to file: {e}")
 
 
 def main() -> None:
@@ -55,9 +53,21 @@ def main() -> None:
         args = sys.argv[1:]
 
         if "-d" in args and "-f" in args:
+
             dir_index = args.index("-d") + 1
             file_index = args.index("-f") + 1
-            directory = create_directory(args[dir_index:args.index("-f")])
+
+            if args.index("-d") > args.index("-f"):
+                dir_index, file_index = file_index, dir_index
+
+            dir_start = dir_index
+            if "-f" in args[dir_index:]:
+                dir_end = args.index("-f", dir_index)
+            else:
+                dir_end = None
+
+            directory_args = args[dir_start:dir_end]
+            directory = create_directory(directory_args)
             if directory:
                 create_file(args[file_index], directory)
         elif "-d" in args:
