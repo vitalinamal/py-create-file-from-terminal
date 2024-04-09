@@ -1,4 +1,4 @@
-import sys
+import argparse
 import os
 from datetime import datetime
 
@@ -49,38 +49,26 @@ def create_file(file_name: str, directory: str = None) -> None:
 
 
 def main() -> None:
-    try:
-        args = sys.argv[1:]
+    parser = argparse.ArgumentParser(
+        description="Create directories and files."
+    )
+    parser.add_argument(
+        "-d",
+        "--directory",
+        nargs="+",
+        help="Directory path parts",
+        default=[]
+    )
+    parser.add_argument("-f", "--file", help="File name")
 
-        if "-d" in args and "-f" in args:
+    args = parser.parse_args()
 
-            dir_index = args.index("-d") + 1
-            file_index = args.index("-f") + 1
+    directory = None
+    if args.directory:
+        directory = create_directory(args.directory)
 
-            if args.index("-d") > args.index("-f"):
-                dir_index, file_index = file_index, dir_index
-
-            dir_start = dir_index
-            if "-f" in args[dir_index:]:
-                dir_end = args.index("-f", dir_index)
-            else:
-                dir_end = None
-
-            directory_args = args[dir_start:dir_end]
-            directory = create_directory(directory_args)
-            if directory:
-                create_file(args[file_index], directory)
-        elif "-d" in args:
-            create_directory(args[args.index("-d") + 1:])
-        elif "-f" in args:
-            create_file(args[args.index("-f") + 1])
-        else:
-            raise ValueError("Invalid usage.")
-    except ValueError as e:
-        print(e)
-        print("Usage: create_file.py -d [directory path parts] -f [file name]")
-        print("Or: create_file.py -d [directory path parts]")
-        print("Or: create_file.py -f [file name]")
+    if args.file:
+        create_file(args.file, directory)
 
 
 if __name__ == "__main__":
